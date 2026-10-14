@@ -1,0 +1,57 @@
+{
+  "name": "tenisu-api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Tennis players and statistics API — L’Atelier technical test",
+  "engines": {
+    "node": ">=24.15 <25"
+  },
+  "scripts": {
+    "db:local": "node --env-file-if-exists=.env scripts/local-db.mjs",
+    "prebuild": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node --env-file-if-exists=.env dist/src/main.js",
+    "start:dev": "tsc-watch -p tsconfig.build.json --onSuccess \"node --env-file-if-exists=.env dist/src/main.js\"",
+    "typecheck": "tsc --noEmit",
+    "pretest": "node -e \"require('node:fs').rmSync('.test-dist', { recursive: true, force: true })\"",
+    "test": "tsc -p tsconfig.test.json && node --test .test-dist/test/*.test.js",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check": "npm run format:check && npm run lint && npm run typecheck && npm test && npm run build",
+    "package:aws": "npm run build && node scripts/package.mjs",
+    "deploy:aws": "node scripts/deploy.mjs"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "3.1150.0",
+    "@aws-sdk/lib-dynamodb": "3.1150.0",
+    "@codegenie/serverless-express": "5.0.0",
+    "@nestjs/common": "12.1.3",
+    "@nestjs/config": "12.0.1",
+    "@nestjs/core": "12.1.3",
+    "@nestjs/platform-express": "12.1.3",
+    "@nestjs/swagger": "12.0.2",
+    "class-transformer": "0.5.1",
+    "class-validator": "0.15.1",
+    "helmet": "8.3.0",
+    "reflect-metadata": "0.2.2",
+    "rxjs": "7.8.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@nestjs/cli": "12.0.8",
+    "@types/aws-lambda": "8.10.164",
+    "@types/express": "5.0.6",
+    "@types/node": "24.19.2",
+    "@types/supertest": "7.2.1",
+    "dynalite": "4.0.0",
+    "eslint": "10.12.0",
+    "globals": "17.13.0",
+    "prettier": "3.9.10",
+    "supertest": "7.3.1",
+    "tsc-watch": "7.2.1",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.71.2"
+  }
+}

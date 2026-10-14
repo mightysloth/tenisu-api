@@ -1,0 +1,80 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Tenisu API - NestJS, API Gateway, Lambda and DynamoDB
+
+Parameters:
+  WriteApiKey:
+    Type: String
+    NoEcho: true
+    MinLength: 32
+    Description: Secret required by POST /api/v1/players
+
+Resources:
+  PlayersTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: pk
+          AttributeType: S
+        - AttributeName: id
+          AttributeType: N
+      KeySchema:
+        - AttributeName: pk
+          KeyType: HASH
+        - AttributeName: id
+          KeyType: RANGE
+      SSESpecification:
+        SSEEnabled: true
+
+  Api:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: $default
+      DefaultRouteSettings:
+        ThrottlingRateLimit: 5
+        ThrottlingBurstLimit: 10
+
+  ApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../.aws/package/
+      Handler: dist/src/lambda.handler
+      Runtime: nodejs24.x
+      Architectures: [arm64]
+      MemorySize: 512
+      Timeout: 15
+      Environment:
+        Variables:
+          NODE_ENV: production
+          PLAYERS_TABLE: !Ref PlayersTable
+          WRITE_API_KEY: !Ref WriteApiKey
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:GetItem
+                - dynamodb:Query
+                - dynamodb:PutItem
+              Resource: !GetAtt PlayersTable.Arn
+      Events:
+        Http:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref Api
+            Path: /{proxy+}
+            Method: ANY
+
+  FunctionLogs:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${ApiFunction}
+      RetentionInDays: 7
+
+Outputs:
+  ApiUrl:
+    Value: !Sub https://${Api}.execute-api.${AWS::Region}.${AWS::URLSuffix}
+  DocumentationUrl:
+    Value: !Sub https://${Api}.execute-api.${AWS::Region}.${AWS::URLSuffix}/docs
