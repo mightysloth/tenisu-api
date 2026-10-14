@@ -1,9 +1,43 @@
 import { deepStrictEqual, equal, rejects } from 'node:assert/strict';
-import { test } from 'node:test';
+import { mock, test } from 'node:test';
+import type { QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { PlayerAlreadyExistsError } from '../src/players/domain/player.js';
 import { PlayersService } from '../src/players/players.service.js';
 import { seedPlayers } from '../src/players/infrastructure/seed.js';
 import { startTestDatabase } from './local-database.js';
+import { createDynamoClient } from '../src/players/infrastructure/dynamo-client.js';
+import { DynamoPlayerRepository } from '../src/players/infrastructure/dynamo-player.repository.js';
+import { loadConfig } from '../src/config.js';
+
+test('reads every query page using the continuation key', async () => {
+  const client = createDynamoClient(
+    loadConfig({ WRITE_API_KEY: 'test-key-with-at-least-32-characters' }),
+  );
+  const repository = new DynamoPlayerRepository(client, 'pagination-test');
+  const cursor = { pk: 'PLAYERS', id: 52 };
+  const pages = [
+    { Items: [{ player: seedPlayers[0] }], LastEvaluatedKey: cursor },
+    { Items: [{ player: seedPlayers[1] }] },
+  ];
+  const queries: QueryCommand[] = [];
+  const send = mock.method(client, 'send', async (command: QueryCommand) => {
+    queries.push(command);
+    const page = pages.shift();
+    if (!page) throw new Error('Unexpected extra query');
+    return page;
+  });
+  try {
+    deepStrictEqual(await repository.findAll(), [
+      seedPlayers[0],
+      seedPlayers[1],
+    ]);
+    equal(queries.length, 2);
+    deepStrictEqual(queries[1]!.input.ExclusiveStartKey, cursor);
+  } finally {
+    send.mock.restore();
+    repository.onModuleDestroy();
+  }
+});
 
 test('persists a player and protects an existing ID from being overwritten', async () => {
   const database = await startTestDatabase();

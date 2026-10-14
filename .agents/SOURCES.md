@@ -1,0 +1,13 @@
+# Review sources
+
+The local instructions are a short project-specific adaptation. Source revisions are pinned; examples are checked against the installed dependencies before use. No upstream plugin, hook, MCP configuration or executable script is activated by these files.
+
+| Source                                                                                                                                               | Revision                                   | Selected material                                                                                             |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------- |
+| [GitHub awesome-copilot](https://github.com/github/awesome-copilot/tree/f25421d3f1b8b3bb217f78a7c0567cf7ec117cd8)                                    | `f25421d3f1b8b3bb217f78a7c0567cf7ec117cd8` | `instructions/nestjs.instructions.md`: modules, constructor injection, DTOs and HTTP conventions              |
+| [Kadajett NestJS skills](https://github.com/Kadajett/agent-nestjs-skills/tree/3986e0cede33958e000f959031cbee0cd83c2941/skills/nestjs-best-practices) | `3986e0cede33958e000f959031cbee0cd83c2941` | Feature modules, repository boundary, input validation, exceptions and isolated tests                         |
+| [Trail of Bits skills](https://github.com/trailofbits/skills/tree/8e54050ae63c2f62224c35b1616efe71865b4777/plugins/differential-review)              | `8e54050ae63c2f62224c35b1616efe71865b4777` | Risk-based review, callers, concrete evidence and test coverage; differential analysis when a baseline exists |
+| [Official NestJS documentation](https://github.com/nestjs/docs.nestjs.com/tree/2ad58ecf61fc1420f4d7f21e1b5859f70184e8dd/content)                     | `2ad58ecf61fc1420f4d7f21e1b5859f70184e8dd` | Modules, validation and native exception handling                                                             |
+| [OWASP Cheat Sheet Series](https://github.com/OWASP/CheatSheetSeries/tree/ae965343cb82e6b8f42aff1ccee57c4fa0f171c2/cheatsheets)                      | `ae965343cb82e6b8f42aff1ccee57c4fa0f171c2` | REST, Node.js, npm, supply-chain and prompt-injection guidance                                                |
+
+The upstream recommendations for ORM integration, JWT, caching and microservices are outside this exercise. The legacy `@Throttle(5, 60)` example is not imported; the deployed API uses API Gateway rate limits.

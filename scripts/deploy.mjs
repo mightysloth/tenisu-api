@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { mkdir, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
@@ -111,11 +111,13 @@ aws([
   '.aws/template.yaml',
 ]);
 await mkdir(join(root, '.aws'), { recursive: true });
-const parameters = join(root, '.aws', 'parameters.json');
-await writeFile(parameters, JSON.stringify([`WriteApiKey=${key}`]), {
-  mode: 0o600,
-});
+const parametersDirectory = await mkdtemp(join(root, '.aws', 'deploy-'));
+const parameters = join(parametersDirectory, 'parameters.json');
 try {
+  await writeFile(parameters, JSON.stringify([`WriteApiKey=${key}`]), {
+    mode: 0o600,
+    flag: 'wx',
+  });
   aws([
     'cloudformation',
     'deploy',
@@ -130,7 +132,7 @@ try {
     `file://${parameters}`,
   ]);
 } finally {
-  await rm(parameters, { force: true });
+  await rm(parametersDirectory, { recursive: true, force: true });
 }
 const outputs = JSON.parse(
   aws(

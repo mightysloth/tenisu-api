@@ -122,7 +122,7 @@ npm test
 npm run check
 ```
 
-`check` exécute formatage, lint, vérification TypeScript, tests et compilation. La CI GitHub Actions lance la même commande. Les tests de calcul sont unitaires ; les tests HTTP et de repository utilisent le SDK réel avec une base émulée neuve sur un port aléatoire. Ils couvrent notamment les statistiques, le classement, les données invalides, l’authentification, les doublons concurrents, les ajouts et les pannes de stockage. Ils n’utilisent aucun compte AWS et ne touchent pas les données locales.
+`check` exécute formatage, lint, vérification TypeScript, tests et compilation. La CI GitHub Actions lance la même commande. Les tests de calcul sont unitaires ; les tests d’intégration HTTP et de persistance utilisent le SDK réel avec une base émulée neuve sur un port aléatoire. Ils couvrent notamment les statistiques, le classement, les données invalides, l’authentification, les doublons concurrents, les ajouts et les pannes de stockage. Ils n’utilisent aucun compte AWS et ne touchent pas les données locales.
 
 ## Déployer sur AWS
 

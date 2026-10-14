@@ -44,9 +44,9 @@ test('averages individual BMIs with the correct units', () => {
   equal(
     calculateStatistics([
       player('USA', [], 200, 80000),
-      player('SUI', [], 100, 20000),
+      player('SUI', [], 100, 10000),
     ]).averageBmi,
-    20,
+    15,
   );
 });
 
