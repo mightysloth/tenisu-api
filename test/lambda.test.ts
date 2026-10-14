@@ -1,14 +1,14 @@
-import { deepStrictEqual, equal } from 'node:assert/strict';
+import { deepStrictEqual, equal, ok } from 'node:assert/strict';
 import { test } from 'node:test';
-import type {
-  APIGatewayProxyEventV2,
-  APIGatewayProxyResult,
-  Context,
-} from 'aws-lambda';
+import type { APIGatewayProxyEventV2, Context } from 'aws-lambda';
 import { handler } from '../src/lambda.js';
 import { startTestDatabase } from './local-database.js';
 
-test('the Lambda handler serves API Gateway v2 requests and reuses its initialization', async () => {
+test('the Lambda handler uses the Node.js 24 async signature and reuses its initialization', async () => {
+  ok(
+    handler.length < 3,
+    'Node.js 24 rejects handlers declaring a callback parameter',
+  );
   const database = await startTestDatabase();
   process.env.NODE_ENV = 'test';
   process.env.WRITE_API_KEY = database.config.writeApiKey;
@@ -42,11 +42,10 @@ test('the Lambda handler serves API Gateway v2 requests and reuses its initializ
   };
   try {
     const responses = await Promise.all([
-      handler(event, {} as Context, () => {}),
-      handler(event, {} as Context, () => {}),
+      handler(event, {} as Context),
+      handler(event, {} as Context),
     ]);
-    for (const response of responses) {
-      const result = response as APIGatewayProxyResult;
+    for (const result of responses) {
       equal(result.statusCode, 200);
       deepStrictEqual(JSON.parse(result.body).bestCountry, {
         code: 'SRB',

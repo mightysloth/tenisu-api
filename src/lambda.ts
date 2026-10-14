@@ -1,21 +1,29 @@
 import { configure as serverlessExpress } from '@codegenie/serverless-express';
-import type { APIGatewayProxyEventV2, Handler } from 'aws-lambda';
+import type {
+  APIGatewayProxyEventV2,
+  APIGatewayProxyResult,
+  Context,
+} from 'aws-lambda';
 import { createApp } from './bootstrap.js';
 import { loadConfig } from './config.js';
 
-let server: ReturnType<typeof serverlessExpress> | undefined;
-let initialization: Promise<ReturnType<typeof serverlessExpress>> | undefined;
+type LambdaHandler = (
+  event: APIGatewayProxyEventV2,
+  context: Context,
+) => Promise<APIGatewayProxyResult>;
 
-async function getServer(): Promise<ReturnType<typeof serverlessExpress>> {
+let server: LambdaHandler | undefined;
+let initialization: Promise<LambdaHandler> | undefined;
+
+async function getServer(): Promise<LambdaHandler> {
   const app = await createApp(loadConfig());
-  return serverlessExpress({ app: app.getHttpAdapter().getInstance() });
+  // v5 returns a Promise, but its typings still require a callback.
+  return serverlessExpress<APIGatewayProxyEventV2, APIGatewayProxyResult>({
+    app: app.getHttpAdapter().getInstance(),
+  }) as unknown as LambdaHandler;
 }
 
-export const handler: Handler<APIGatewayProxyEventV2> = async (
-  event,
-  context,
-  callback,
-) => {
+export const handler: LambdaHandler = async (event, context) => {
   if (!server) {
     initialization ??= getServer();
     try {
@@ -25,5 +33,5 @@ export const handler: Handler<APIGatewayProxyEventV2> = async (
       throw error;
     }
   }
-  return server(event, context, callback);
+  return server(event, context);
 };

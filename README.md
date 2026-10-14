@@ -1,6 +1,10 @@
 # Tenisu API
 
-API NestJS 12 / TypeScript pour le test technique backend de L’Atelier. Les quatre endpoints demandés sont implémentés, avec validation, gestion des erreurs, persistance et tests. Le déploiement AWS est décrit ci-dessous.
+API NestJS 12 / TypeScript pour le test technique backend de L’Atelier. Les quatre endpoints demandés sont implémentés, avec validation, gestion des erreurs, persistance et tests. L’application est déployée sur AWS à Paris.
+
+- [API : joueurs](https://3t3l6booh8.execute-api.eu-west-3.amazonaws.com/api/v1/players)
+- [Documentation Swagger](https://3t3l6booh8.execute-api.eu-west-3.amazonaws.com/docs)
+- [Spécification OpenAPI](https://3t3l6booh8.execute-api.eu-west-3.amazonaws.com/openapi.json)
 
 ## Lancer en local
 
